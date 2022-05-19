@@ -4,7 +4,6 @@
 [![Release Drafter](https://github.com/yannickkirschen/ddir/actions/workflows/release-drafter.yml/badge.svg)](https://github.com/yannickkirschen/ddir/actions/workflows/release-drafter.yml)
 [![pytest](https://github.com/yannickkirschen/ddir/actions/workflows/push.yml/badge.svg)](https://github.com/yannickkirschen/ddir/actions/workflows/push.yml)
 [![release](https://github.com/yannickkirschen/ddir/actions/workflows/release.yml/badge.svg)](https://github.com/yannickkirschen/ddir/actions/workflows/release.yml)
-[![GitHub license](https://img.shields.io/github/license/yannickkirschen/ddir.svg)](https://github.com/yannickkirschen/ddir/blob/main/LICENSE)
 [![GitHub release](https://img.shields.io/github/release/yannickkirschen/ddir.svg)](https://github.com/yannickkirschen/ddir/releases/)
 
 `ddir` is a command line tool to calculate diffs between two directories and
