@@ -1,5 +1,9 @@
 {
     "cSpell.language": "en",
     "editor.formatOnSave": true,
-    "editor.wordWrap": "on"
+    "editor.wordWrap": "on",
+    "editor.rulers": [
+        80,
+        120
+    ]
 }
