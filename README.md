@@ -11,6 +11,13 @@ resolve them.
 
 Check out the [diff file format](docs/diff-file-format.md) as well.
 
+## Installation
+
+`pip install ddir`
+
+This will install a binary called `ddir` on your `PATH` that you can execute.
+Depending on your system, you may need sudo/admin permissions.
+
 ## Usage
 
 ### Initialize
