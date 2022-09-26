@@ -20,18 +20,31 @@ cli_args.from_schema({
             'help': 'The destination directory to be controlled by ddir',
             'default': '',
             'type': 'str'
+        },
+        {
+            'short': 'f',
+            'long': 'fast',
+            'var': 'FAST',
+            'help': 'Do not check md5 hash (on/off)',
+            'default': 'off',
+            'type': 'str'
         }
     ]
 })
 
 
-def init(source: str, destination: str):
+def init(source: str, destination: str, fast: bool):
     dot_dir = os.sep.join([source, '.ddir'])
     if not os.path.exists(dot_dir):
         os.mkdir(dot_dir)
 
         with open(os.sep.join([dot_dir, 'destination']), 'w') as file:
             file.write(f'{destination}')
+
+        with open(os.sep.join([dot_dir, 'fast_mode']), 'w') as file:
+            fast_mode = 'on' if fast else 'off'
+            file.write(fast_mode)
+            print(f'Fast mode is {fast_mode}')
 
         print(f'Initialized {source}')
     else:
@@ -40,4 +53,6 @@ def init(source: str, destination: str):
 
 
 def init_from_args():
-    init(os.path.abspath(cli_args.argv['source']), os.path.abspath(cli_args.argv['destination']))
+    init(os.path.abspath(cli_args.argv['source']),
+         os.path.abspath(cli_args.argv['destination']),
+         cli_args.argv['fast'])

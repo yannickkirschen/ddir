@@ -27,12 +27,18 @@ will be stored as well as a reference to the destination directory.
 
 `ddir init --source <path> --destination <path>`
 
+**Global fast mode:** if you just want to compare change dates of files and not
+their content (md5 hash), you can use the fast mode `--fast on`.
+
 ### Create diff
 
 This will traverse the source directory, compare it to the destination
 directory and store the diff in `.ddir`.
 
 `ddir create --source <path>`
+
+**Fast mode:** if you just want to compare change dates of files and not their
+content (md5 hash), you can use the fast mode `--fast on`.
 
 ### Resolve diff
 
