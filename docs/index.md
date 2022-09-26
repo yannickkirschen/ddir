@@ -23,7 +23,7 @@ will be stored as well as a reference to the destination directory.
 ### Create diff
 
 This will traverse the source directory, compare it to the destination
-directory and store ste diff in `.ddir`.
+directory and store the diff in `.ddir`.
 
 `ddir create --source <path>`
 
