@@ -13,6 +13,13 @@ Check out the [diff file format](diff-file-format.md) as well.
 
 ## Usage
 
+## Installation
+
+`pip install ddir`
+
+This will install a binary called `ddir` on your `PATH` that you can execute.
+Depending on your system, you may need sudo/admin permissions.
+
 ### Initialize
 
 This will create a directory `.ddir` in the source directory where all diffs
