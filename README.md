@@ -1,7 +1,6 @@
 # ddir
 
 [![Lint commit message](https://github.com/yannickkirschen/ddir/actions/workflows/commit-lint.yml/badge.svg)](https://github.com/yannickkirschen/ddir/actions/workflows/commit-lint.yml)
-[![Release Drafter](https://github.com/yannickkirschen/ddir/actions/workflows/release-drafter.yml/badge.svg)](https://github.com/yannickkirschen/ddir/actions/workflows/release-drafter.yml)
 [![pytest](https://github.com/yannickkirschen/ddir/actions/workflows/push.yml/badge.svg)](https://github.com/yannickkirschen/ddir/actions/workflows/push.yml)
 [![release](https://github.com/yannickkirschen/ddir/actions/workflows/release.yml/badge.svg)](https://github.com/yannickkirschen/ddir/actions/workflows/release.yml)
 [![GitHub release](https://img.shields.io/github/release/yannickkirschen/ddir.svg)](https://github.com/yannickkirschen/ddir/releases/)
@@ -9,7 +8,7 @@
 `ddir` is a command line tool to calculate diffs between two directories and
 resolve them.
 
-Check out the [diff file format](docs/diff-file-format.md) as well.
+Check out the [diff file format](#the-diff-file-format) as well.
 
 ## Installation
 
@@ -20,32 +19,26 @@ Depending on your system, you may need sudo/admin permissions.
 
 ## Usage
 
-### Initialize
+```txt
+Usage: ddir <commands>
 
-This will create a directory `.ddir` in the source directory where all diffs
-will be stored as well as a reference to the destination directory.
+Available commands:
+    help                                - show this help
+    version                             - show version
+    init                                - initialize a source directory
+    diff create <name>                  - create a diff for a target
+    diff resolve <name> --modes <modes> - resolve a diff for a target
+    diff list <name>                    - list all diffs for a target
+    target create                       - create a target in interactive mode
+    target list                         - list all targets
+    target delete <name>                - delete target
+    legacy migrate                      - migrate from legacy ddir
+```
 
-`ddir init --source <path> --destination <path>`
+## Fast mode
 
-**Global fast mode:** if you just want to compare change dates of files and not
-their content (md5 hash), you can use the fast mode `--fast on`.
-
-### Create diff
-
-This will traverse the source directory, compare it to the destination
-directory and store the diff in `.ddir`.
-
-`ddir create --source <path>`
-
-**Fast mode:** if you just want to compare change dates of files and not their
-content (md5 hash), you can use the fast mode `--fast on`.
-
-### Resolve diff
-
-This will iterate through all diffs in a given diff file and apply them
-according to given modes.
-
-`ddir resolve --source <path> --file 2022-05-19-806383729.diff --modes xxxxx`
+If you just want to compare change dates of files and not their content
+(md5 hash), you can use the fast mode. Set that option when creating a target.
 
 ## Modes to resolve
 
@@ -62,3 +55,30 @@ When choosing to apply diffs, the following will happen:
 - `+`, `>`, `?`: override destination element with source element
 - `<`: override source element with destination element
 - `-`: delete destination element
+
+## The diff file format
+
+A diff file stores the differences between a file or a directory at a source
+compared to a destination.
+
+### Specification
+
+We call a file or a directory an **element**. The type of one element is either
+`d` for *directory* or `f` for *file*.
+
+We differentiate between five diff types:
+
+- `+` (**positive diff**): an element exists in the source but not the
+  destination
+- `-` (**negative diff**): an element exists in the destination but not
+  the source
+- `>` (**newer diff**): the source element is newer than the destination element
+- `<` (**older diff**): the source element is older than the destination element
+- `?` (**unknown diff**): the elements are somehow different, but we can't
+  categorize them; used if files differ but change dates are equal; requires
+  manual resolution
+
+The diff file is a newline-separated text file with each line containing an
+individual diff. Each line has the format:
+
+`{diff type}:{element type}:{first element}:{second element}`
