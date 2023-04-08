@@ -16,7 +16,7 @@ if __name__ == '__main__':
     with open('ddir/__version__.py', 'r', encoding='utf-8') as file:
         newText=file.read().replace('development', version)
 
-    with open('out.txt', 'w', encoding='utf-8') as file:
+    with open('ddir/__version__.py', 'w', encoding='utf-8') as file:
         file.write(newText)
 
     setuptools.setup(

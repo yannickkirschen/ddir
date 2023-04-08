@@ -137,5 +137,3 @@ if __name__ == '__main__':
     except ProgramError as e:
         print(e.message)
         _exit(e.exit_code)
-else:
-    raise NotImplementedError('Module is not meant to be imported.')
