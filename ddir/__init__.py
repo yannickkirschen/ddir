@@ -1,202 +1,138 @@
+"""Initializer."""
+
 from __future__ import annotations
 
-import os
-import random
 from dataclasses import dataclass
-from datetime import date
-from enum import Enum
-
-__all__ = [
-    'create',
-    'resolve',
-    'Diff',
-    'DiffType',
-    'DiffFileCreator',
-    'DiffFileParser',
-    'Flag'
-]
-
-ALLOWED_DIFF_TYPES = ('+', '-', '>', '<', '?')
-ALLOWED_FLAGS = ('d', 'f')
 
 
-def _directory_flag(element: str) -> str:
-    return 'd' if os.path.isdir(element) else 'f'
-
-
-class DiffFileCreator:
-    """
-    Write diffs to a text file.
-
-    When instantiating this class, it will create a file of the form
-    "yyyy-mm-dd-rand.diff", where yyyy-mm-dd is the current date and
-    rand a random number.
-
-    To learn more about the diff file format, visit https://ddir.yannick.sh/diff-file-format.
-    """
-
-    def __init__(self, directory='./'):
-        file_name = f'{date.today()}-{random.randint(1, 1_000_000_000)}.diff'
-        self._file_path = os.sep.join([directory, file_name])
-
-    def add_diff(self, diff: Diff):
-        self._file.write(diff.to_diff_format())
-
-    def __enter__(self):
-        self._file = open(self._file_path, 'w')
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._file.close()
-
-    def __str__(self):
-        return self._file_path
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return self._file_path == other
-
-    def __hash__(self):
-        return self._file_path.__hash__()
-
-
-class DiffType(Enum):
-    POSITIVE = 0
-    NEGATIVE = 1
-    NEWER = 2
-    OLDER = 3
-    UNKNOWN = 4
-
-    def to_diff_format(self) -> str:
-        return ('+', '-', '>', '<', '?')[self.value]
-
-    @staticmethod
-    def from_diff_format(diff_type: str):
-        if diff_type not in ALLOWED_DIFF_TYPES:
-            raise ValueError(f'Types must be one of {ALLOWED_DIFF_TYPES} and not {diff_type}')
-
-        if diff_type == '+':
-            return DiffType.POSITIVE
-
-        if diff_type == '-':
-            return DiffType.NEGATIVE
-
-        if diff_type == '>':
-            return DiffType.NEWER
-
-        if diff_type == '<':
-            return DiffType.OLDER
-
-        if diff_type == '?':
-            return DiffType.UNKNOWN
-
-    def __str__(self):
-        if self.value == 0:
-            return 'positive'
-
-        if self.value == 1:
-            return 'negative'
-
-        if self.value == 2:
-            return 'newer'
-
-        if self.value == 3:
-            return 'older'
-
-        if self.value == 4:
-            return 'unknown'
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        if not isinstance(other, DiffType):
-            return False
-
-        return self.value == other.value
-
-    def __hash__(self):
-        return self.value.__hash__()
-
-
-class Flag(Enum):
-    DIRECTORY = 0
-    FILE = 1
-
-    def to_diff_format(self) -> str:
-        return ('d', 'f')[self.value]
-
-    @staticmethod
-    def from_diff_format(flag: str):
-        if flag not in ALLOWED_FLAGS:
-            raise ValueError(f'Flags must be one of {ALLOWED_DIFF_TYPES} and not {flag}')
-
-        return Flag.DIRECTORY if flag == 'd' else Flag.FILE
-
-    def __str__(self):
-        return 'directory' if self == self.value == 0 else 'file'
+API_VERSION = 'v2'
+ENCODING = 'utf-8'
 
 
 @dataclass
-class Diff:
-    type: DiffType
-    flag: Flag
-    source: str
-    destination: str
+class GlobalConfiguration:
+    """
+    Contains the content of `.ddir/ddir.json`
 
-    def to_diff_format(self) -> str:
-        return f'{self.type.to_diff_format()}:{self.flag.to_diff_format()}:{self.source}:{self.destination}\n'
+    Attributes:
+        - api_version: version string that indicates which version the `.ddir` directory is formatted in
+        - ignore: list of paths that should be ignored by ddir (regex)
+    """
+    api_version: str
+    ignore: list[str]
+
+    def to_json(self) -> dict:
+        """Converts this `GlobalConfiguration` to a JSON dictionary"""
+
+        return {
+            'api-version': self.api_version,
+            'ignore': self.ignore
+        }
 
     @staticmethod
-    def from_formatted_string(s: str) -> Diff:
-        fields = s.split(':')
+    def from_dict(data: dict) -> GlobalConfiguration:
+        """ Creates an instance of `GlobalConfiguration` based on a JSON dict."""
 
-        if len(fields) != 4:
-            raise ValueError(f'Diff "{s}" is invalid. Format is <type>:<element type>:<first element>:<second element>')
+        if not data.keys() & {'api-version', 'ignore'}:
+            raise KeyError(f'Type GlobalConfiguration expects input keys (api-version, ignore). Given were {data.keys()}')
 
-        if fields[0] not in ALLOWED_DIFF_TYPES:
-            raise ValueError(f'Types must be one of {ALLOWED_DIFF_TYPES} and not {fields[0]}')
-
-        return Diff(DiffType.from_diff_format(fields[0]),
-                    Flag.from_diff_format(fields[1]),
-                    fields[2],
-                    fields[3])
+        return GlobalConfiguration(data['api-version'], data['ignore'])
 
 
-class DiffFileParser:
-    def __init__(self, file_path):
-        self._file_path = file_path
-        self._diff_at_current_iteration = None
+class ProgramError(Exception):
+    """A generic program error containing a message."""
+    _message = ''
+    _exit_code = 1
 
-    def __iter__(self):
-        return self
+    def __init__(self, message='Error while executing the program', exit_code=1):
+        super().__init__(message)
+        self._message = message
+        self._exit_code = exit_code
 
-    def __next__(self) -> Diff:
-        line = self._file.__next__().strip()
+    @property
+    def message(self) -> str:
+        """Getter for the message."""
+        return self._message
 
-        if line == '':
-            line = self.__next__()
+    @property
+    def exit_code(self) -> int:
+        """Getter for the exit code"""
+        return self._exit_code
 
-        self._diff_at_current_iteration = Diff.from_formatted_string(line)
-        return self._diff_at_current_iteration
+    @staticmethod
+    def command_not_found(command: str) -> ProgramError:
+        """Creates a `ProgramError` containing a message that a command could not be parsed."""
+        return ProgramError(f"""
+🚧 Oops! An error occurred 🚧
 
-    def __enter__(self):
-        self._file = open(self._file_path, 'r')
-        return self
+   Input:   call of <ddir {command}>
+   Result:  failed during parsing commands
+   Reason:  unknown command "{command}" (exit code 100)
+   Details: The command you entered does not exist or misses arguments.
+            Try <ddir help> to get all available commands.
+""", 100)
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self._file.close()
+    @staticmethod
+    def no_ddir(current_d: str) -> ProgramError:
+        """Creates a `ProgramError` containing a message that the current directory is not controlled by ddir."""
+        return ProgramError(f"""
+🚧 Oops! An error occurred 🚧
 
-    def __str__(self):
-        return self._file_path
+   Input:   a command that requires "{current_d} to be controlled by ddir
+   Result:  failed during precondition check (exit code 2)
+   Reason:  the current directory must be controlled by ddir to execute commands
+   Details: {current_d} is not controlled by ddir.
+            Execute <ddir init> to initialize it as a source.
+""", 2)
 
-    def __repr__(self):
-        return self.__str__()
+    @staticmethod
+    def is_ddir(current_d: str) -> ProgramError:
+        """Creates a `ProgramError` containing a message that the current directory is already controlled by ddir."""
+        return ProgramError(f"""
+🚧 Oops! An error occurred 🚧
 
-    def __eq__(self, other):
-        return self._file_path == other
+   Input:   a command that requires "{current_d} is not controlled by ddir
+   Result:  failed during precondition check (exit code 3)
+   Reason:  the current directory is already controlled by directory
+   Details: {current_d} is controlled by ddir. You cannot re-initialize it.
+""", 3)
 
-    def __hash__(self):
-        return self._file_path.__hash__()
+    @staticmethod
+    def target_not_found(target: str) -> ProgramError:
+        """Creates a `ProgramError` containing a message that a given target could not be found."""
+        return ProgramError(f"""
+🚧 Oops! An error occurred 🚧
+
+   Input:   a command that requires a target name as input
+   Result:  failed while finding the target (exit code 10)
+   Reason:  the target "{target}" does not exist
+   Details: {target} is absent.
+            Try using an existing target or list all targets with <ddir target list>.
+""", 10)
+
+    @staticmethod
+    def target_already_exists(target: str) -> ProgramError:
+        """Creates a `ProgramError` containing a message that a given target already exists."""
+        return ProgramError(f"""
+🚧 Oops! An error occurred 🚧
+
+   Input:   name of a target to create
+   Result:  failed while creating the target (exit code 11)
+   Reason:  the target "{target}" already exists
+   Details: {target} is already present.
+            Try using a different name or list all targets with <ddir target list>.
+""", 11)
+
+    @staticmethod
+    def modes_invalid(modes: tuple) -> ProgramError:
+        """Creates a `ProgramError` containing a message that given modes are invalid."""
+        return ProgramError(f"""
+🚧 Oops! An error occurred 🚧
+
+   Input:   modes to resolve a diff
+   Result:  failed while interpreting the modes (exit code 20)
+   Reason:  modes {modes} are invalid
+   Details: {modes} does not conform to the format of modes.
+            There must be exactly five modes (provided {len(modes)}) and modes must be
+            between 0 and 3 (provided: {min(modes)} and {max(modes)})
+""", 11)
