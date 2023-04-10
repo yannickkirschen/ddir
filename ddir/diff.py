@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import date
 from enum import Enum
 from hashlib import md5
+from math import ceil
 from os import sep, listdir, mkdir, stat
 from os.path import exists, isfile, isdir
 from random import randint as rand
@@ -258,13 +259,20 @@ def _create_for_file(diff: DiffFileCreator, source: str, target: str, fast: bool
         print(f'file not in target: {source} {target}')
         diff.add_diff(Diff(DiffType.POSITIVE, 'f', source, target))
     else:
-        source_last_changed = stat(source).st_mtime
-        target_last_changed = stat(target).st_mtime
+        # It may occur that the source modification time has a higher/lower
+        # precision than the target modification time. As rounding to e.g. 2
+        # decimal places may lead to a difference of .01, we round to the
+        # ceiling to avoid false positives.
+        source_last_changed = ceil(stat(source).st_mtime)
+        target_last_changed = ceil(stat(target).st_mtime)
 
-        if source_last_changed > target_last_changed:
+        # Here, we check if the files are different by more than one second.
+        # This is because on some file systems, the modification time may be
+        # different by one second, even if the file has not been changed.
+        if source_last_changed - target_last_changed > 1:
             print(f'files differ: {source} is newer than {target}')
             diff.add_diff(Diff(DiffType.NEWER, 'f', source, target))
-        elif target_last_changed > source_last_changed:
+        elif target_last_changed - source_last_changed > 1:
             print(f'files differ: {target} is newer than {source}')
             diff.add_diff(Diff(DiffType.OLDER, 'f', source, target))
         elif not fast:
