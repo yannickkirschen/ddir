@@ -164,7 +164,7 @@ def create(target_d: str, name: str, path: str, fast_mode: bool) -> Target:
 
     mkdir(target.this)
     with open(sep.join([target.this, 'target.json']), 'w', encoding=ENCODING) as file:
-        file.write(dumps(target.to_json()))
+        file.write(dumps(target.to_json(), indent = 2, separators=(',', ': ')))
 
     return target
 
