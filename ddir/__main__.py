@@ -78,7 +78,6 @@ def _handle_diff_create(name: str) -> None:
         config = GlobalConfiguration.from_dict(loads(file.read()))
 
         _target = target.load(_TARGET_D, name)
-        print(_target)
         with diff.DiffFileCreator(sep.join([_TARGET_D, _target.hash.value])) as file:
             diff.create(file, _CURRENT_DIRECTORY, _target.path, _target.fast_mode, config.ignore)
 
@@ -86,7 +85,7 @@ def _handle_diff_create(name: str) -> None:
 @_is_ddir_controlled
 def _handle_diff_resolve(name: str, modes: tuple) -> None:
     _target = target.load(_TARGET_D, name)
-    diff_file = diff.ask_for_diff(_target)
+    diff_file = diff.ask_for(_target)
 
     with diff.DiffFileReader(diff_file.path) as parser:
         diff.resolve(parser, tuple(int(c) for c in modes))
@@ -95,7 +94,7 @@ def _handle_diff_resolve(name: str, modes: tuple) -> None:
 @_is_ddir_controlled
 def _handle_diff_list(name: str) -> None:
     _target = target.load(_TARGET_D, name)
-    diffs = diff.ask_for_diff(_target.this)
+    diffs = diff.load_diffs_meta(_target.this)
 
     print(f'Diffs for target {_target.name}:')
     for index, _diff in enumerate(diffs):

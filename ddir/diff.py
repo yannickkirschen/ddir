@@ -200,7 +200,7 @@ def load_diffs_meta(path: str) -> List[Meta]:
     return sorted(diffs, key=lambda diff: diff.creation)
 
 
-def ask_for_diff(target: Target) -> Meta:
+def ask_for(target: Target) -> Meta:
     """Loads all diffs of a target and asks for user input to choose a diff."""
 
     diffs = load_diffs_meta(target.this)
@@ -323,41 +323,41 @@ def _get_mode_selection(diff: Diff) -> str:
     print()
     print(f'Applying will {diff.type.description()}')
 
-    selection = input('Do you want to apply this diff? (y/N)')
+    selection = input('Do you want to apply this diff? (y/N) ')
     if selection == 'y':
         return 'y'
 
     return 'n'
 
 
-def _get_mode_from_selection(mode: int, _diff: Diff) -> int:
-    if mode == 2 and _get_mode_selection(_diff) == 'y':
+def _get_mode_from_selection(mode: int, diff: Diff) -> int:
+    if mode == 2 and _get_mode_selection(diff) == 'y':
         return 1
 
     return mode
 
 
-def _copy_file_or_directory(source: str, _target: str) -> None:
+def _copy_file_or_directory(source: str, target: str) -> None:
     if isfile(source):
-        cp(source, _target)
-        print(f'Copied/overridden file {source} to {_target}')
+        cp(source, target)
+        print(f'Copied/overridden file {source} to {target}')
     elif isdir(source):
-        mkdir(_target)
+        mkdir(target)
 
         for file in listdir(source):
             abs_target = sep.join([source, file])
-            abs_source = sep.join([_target, file])
+            abs_source = sep.join([target, file])
 
             cp(abs_target, abs_source)
-            print(f'Copied/overridden file {abs_target} to {_target}')
+            print(f'Copied/overridden file {abs_target} to {target}')
     else:
         print(f'{source} does not exist anymore, thus is skipped')
 
 
-def _copy_with_mode_check(mode: int, _diff: Diff, source: str, _target: str) -> None:
-    mode = _get_mode_from_selection(mode, _diff)
+def _copy_with_mode_check(mode: int, diff: Diff, source: str, target: str) -> None:
+    mode = _get_mode_from_selection(mode, diff)
 
     if mode == 0:
-        print(f'Skip copy/override {source} to/with {_target}')
+        print(f'Skip copy/override {source} to/with {target}')
     elif mode == 1:
-        _copy_file_or_directory(source, _target)
+        _copy_file_or_directory(source, target)
