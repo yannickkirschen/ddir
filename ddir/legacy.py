@@ -57,6 +57,7 @@ def _v1_to_v2(ddir: str, target_d: str) -> None:
                 diff = sep.join([ddir, element])
                 if isfile(diff) and element.endswith('.diff'):
                     cp(diff, _target.this)
+                    rm(diff)
                     print(f'Copied diff {element} to {_target.this}')
 
             rm(destination_file)
