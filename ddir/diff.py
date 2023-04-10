@@ -81,7 +81,7 @@ class DiffType(Enum):
 
     # pylint: disable=E0307
     def __str__(self) -> str:
-        match self.value.index():
+        match self.value[0]:
             case 0: return 'positive'
             case 1: return 'negative'
             case 2: return 'newer'
