@@ -7,15 +7,15 @@ from os.path import exists
 from ddir import API_VERSION, ENCODING, GlobalConfiguration, ProgramError
 
 
-def initialize(directory: str) -> None:
+def initialize(ddir: str) -> None:
     """Initializes an empty ddir source."""
-    if exists(directory):
-        raise ProgramError.is_ddir(directory)
+    if exists(ddir):
+        raise ProgramError.is_ddir(ddir)
 
-    ddir = sep.join([directory, '.ddir'])
     mkdir(ddir)
 
-    raw_config = dumps(GlobalConfiguration(API_VERSION, ['.ddir', '.DS_Store']).to_json())
+    raw_config = dumps(GlobalConfiguration(API_VERSION, ['.ddir', '.DS_Store']).to_json(),
+                        indent = 2, separators=(',', ': '))
     with open(sep.join([ddir, 'ddir.json']), 'w', encoding=ENCODING) as file:
         file.write(raw_config)
 

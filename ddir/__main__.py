@@ -65,7 +65,7 @@ the following modes:
 
 
 def _handle_init() -> None:
-    initialize.initialize(_CURRENT_DIRECTORY)
+    initialize.initialize(_DDIR)
 
 
 def _handle_version() -> None:
