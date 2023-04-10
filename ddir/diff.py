@@ -15,7 +15,7 @@ from os import sep, listdir, mkdir, stat
 from os.path import exists, isfile, isdir
 from random import randint as rand
 from re import match
-from shutil import copy as cp
+from shutil import copy2 as cp
 from time import localtime, strftime
 from typing import List
 

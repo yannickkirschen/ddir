@@ -7,7 +7,7 @@ Its purpose is to migrate old source configurations to the latest version.
 from json import dumps
 from os import sep, listdir, remove as rm
 from os.path import exists, isfile
-from shutil import copy as cp
+from shutil import copy2 as cp
 
 from ddir import API_VERSION, ENCODING, GlobalConfiguration, target
 
