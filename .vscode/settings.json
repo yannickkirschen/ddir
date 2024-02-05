@@ -10,13 +10,7 @@
         "ddir",
         "pytest"
     ],
-    "python.formatting.autopep8Args": [
+    "autopep8.args": [
         "--max-line-length=140"
-    ],
-    "python.formatting.blackArgs": [
-        "--line-length=140"
-    ],
-    "python.formatting.yapfArgs": [
-        "--style={based_on_style: google, column_limit: 140, indent_width: 4}"
     ]
 }
