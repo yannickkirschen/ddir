@@ -359,5 +359,9 @@ def _copy_with_mode_check(mode: int, diff: Diff, source: str, target: str) -> No
 
     if mode == 0:
         print(f'Skip copy/override {source} to/with {target}')
-    elif mode == 1:
+    elif mode == 1 and diff.type in [DiffType.POSITIVE, DiffType.NEWER, DiffType.UNKNOWN]:
         _copy_file_or_directory(source, target)
+    elif mode == 1 and diff.type == DiffType.OLDER:
+        _copy_file_or_directory(target, source)  # pylint: disable=W1114
+    elif mode == 1 and diff.type == DiffType.NEGATIVE:
+        print(f'File {target} should be deleted but deletion is not implemented yet')
