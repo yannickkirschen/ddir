@@ -8,7 +8,8 @@
     ],
     "cSpell.words": [
         "ddir",
-        "pytest"
+        "pytest",
+        "venv"
     ],
     "autopep8.args": [
         "--max-line-length=140"

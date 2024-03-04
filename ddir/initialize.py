@@ -14,8 +14,8 @@ def initialize(ddir: str) -> None:
 
     mkdir(ddir)
 
-    raw_config = dumps(GlobalConfiguration(API_VERSION, ['.ddir', '.DS_Store']).to_json(),
-                        indent = 2, separators=(',', ': '))
+    raw_config = dumps(GlobalConfiguration(API_VERSION, ['.ddir', 'venv', '.DS_Store']).to_json(),
+                       indent=2, separators=(',', ': '))
     with open(sep.join([ddir, 'ddir.json']), 'w', encoding=ENCODING) as file:
         file.write(raw_config)
 
