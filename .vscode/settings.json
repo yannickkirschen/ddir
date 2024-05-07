@@ -9,7 +9,8 @@
     "cSpell.words": [
         "ddir",
         "pytest",
-        "venv"
+        "venv",
+        "yannickkirschen"
     ],
     "autopep8.args": [
         "--max-line-length=140"

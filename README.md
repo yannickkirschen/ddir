@@ -19,7 +19,10 @@ Depending on your system, you may need sudo/admin permissions.
 
 ### Installation on macOS
 
-In case you're using Homebrew, the installation via pip fails (at least on my machine). In that case, create a virtual environment and install `ddir` in there. The `venv` directory will be set ignored when initializing a new directory. In case you have `ddir`-controlled directory that has been initialized with an older version, please add `venv` to `.ddir/ddir.json`.
+```bash
+brew tap yannickkirschen/tap
+brew install ddir
+```
 
 ## Usage
 
