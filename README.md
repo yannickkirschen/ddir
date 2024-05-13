@@ -10,6 +10,9 @@ resolve them.
 
 Check out the [diff file format](#the-diff-file-format) as well.
 
+> [!Caution]
+> When copying data from the internal storage device to an external one, there currently is a strange bug that causes the metadata to be incorrect. Precisely, `shutil.copy2` does not manage to copy `st_mtime` correctly - there is always a difference by a couple of milliseconds. I have no idea where this comes from. In [v2.0.2](https://github.com/yannickkirschen/ddir/releases/tag/2.0.2) I added ceiling of the timestamps but removed it in [v3.1.0](https://github.com/yannickkirschen/ddir/releases/tag/3.1.0) cause it was just a workaround. Still looking for a solution ...
+
 ## Installation
 
 `pip install ddir`
