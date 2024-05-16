@@ -264,10 +264,10 @@ def _create_for_file(diff: DiffFileCreator, source: str, target: str, fast: bool
         source_last_changed_str = datetime.fromtimestamp(source_last_changed).isoformat()
         target_last_changed_str = datetime.fromtimestamp(target_last_changed).isoformat()
 
-        if source_last_changed > target_last_changed:
+        if not _float_sneaky_equals(source_last_changed, target_last_changed) and source_last_changed > target_last_changed:
             print(f'[metadata] files differ: {source} is newer than {target} ({source_last_changed_str} > {target_last_changed_str})')
             diff.add_diff(Diff(DiffType.NEWER, 'f', source, target))
-        elif target_last_changed > source_last_changed:
+        elif not _float_sneaky_equals(source_last_changed, target_last_changed) and target_last_changed > source_last_changed:
             print(f'[metadata] files differ: {target} is newer than {source} ({target_last_changed_str} > {source_last_changed_str})')
             diff.add_diff(Diff(DiffType.OLDER, 'f', source, target))
         elif not fast:
@@ -279,6 +279,29 @@ def _create_for_file(diff: DiffFileCreator, source: str, target: str, fast: bool
                 if source_md5 != target_md5:
                     print(f'[content ] files differ: {source}')
                     diff.add_diff(Diff(DiffType.UNKNOWN, 'f', source, target))
+
+
+def _float_sneaky_equals(a: float, b: float) -> bool:
+    a_len_d = len(str(a).split('.')[1])
+    b_len_d = len(str(b).split('.')[1])
+
+    if a_len_d == b_len_d:
+        return 0 if a == b else 1
+
+    if a_len_d < b_len_d:
+        return a == _truncate_float(b, a_len_d)
+
+    return _truncate_float(a, b_len_d) == b
+
+
+def _truncate_float(f: float, n: int) -> float:
+    """Truncates/pads a float f to n decimal places without rounding"""
+    s = str(f)
+    if 'e' in s or 'E' in s:
+        return float(f'{0:.{f}f}')
+
+    i, _, d = s.partition('.')
+    return float('.'.join([i, (d+'0'*n)[:n]]))
 
 
 def resolve(reader: DiffFileReader, modes=(0, 0, 0, 0, 0)) -> None:

@@ -10,8 +10,20 @@ resolve them.
 
 Check out the [diff file format](#the-diff-file-format) as well.
 
-> [!Caution]
-> When copying data from the internal storage device to an external one, there currently is a strange bug that causes the metadata to be incorrect. Precisely, `shutil.copy2` does not manage to copy `st_mtime` correctly - there is always a difference by a couple of milliseconds. I have no idea where this comes from. In [v2.0.2](https://github.com/yannickkirschen/ddir/releases/tag/2.0.2) I added ceiling of the timestamps but removed it in [v3.1.0](https://github.com/yannickkirschen/ddir/releases/tag/3.1.0) cause it was just a workaround. Still looking for a solution ...
+> [!IMPORTANT]
+> `ddir` uses `shutil.copy2` to copy files and directories. This function tries
+> to copy the metadata like timestamps as well. When copying data to an external
+> storage device with a different file system, there is an issue with the
+> accuracy of those timestamps:
+>
+> To determine if a file is newer or older, `ddir` uses the `st_mtime` property,
+> which is the UNIX timestamp as float. This float happens to be of a different
+> accuracy depending on the storage device and file system. On all my internal
+> devices (SSD and NVMe, APFS and ext4), the float has an accuracy of 6 decimal
+> places, but on my external devices (SSD, exFAT) it only has an accuracy of 2
+> decimal places. This causes all comparisons to be not equal and thus a file is
+> marked as modified though it isn't. This is why I implemented a sneaky
+> comparison, that cuts of the overlapping decimal places without rounding them.
 
 ## Installation
 
