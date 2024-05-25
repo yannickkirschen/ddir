@@ -11,11 +11,11 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from enum import Enum
 from hashlib import md5
-from os import sep, listdir, mkdir, stat
+from os import sep, listdir, stat
 from os.path import exists, isfile, isdir
 from random import randint as rand
 from re import match
-from shutil import copy2 as cp
+from shutil import copy2 as cp, copytree
 from time import localtime, strftime
 from typing import List
 
@@ -360,14 +360,8 @@ def _copy_file_or_directory(source: str, target: str) -> None:
         cp(source, target)
         print(f'Copied/overridden file {source} to {target}')
     elif isdir(source):
-        mkdir(target)
-
-        for file in listdir(source):
-            abs_target = sep.join([source, file])
-            abs_source = sep.join([target, file])
-
-            cp(abs_target, abs_source)
-            print(f'Copied/overridden file {abs_target} to {target}')
+        copytree(source, target, copy_function=cp)
+        print(f'Copied/overridden directory {source} to {target}')
     else:
         print(f'{source} does not exist anymore, thus is skipped')
 
