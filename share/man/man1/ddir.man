@@ -1,0 +1,83 @@
+.\" Manpage for ddir.
+.\" Contact yannickkirschen@protonmail.com to correct errors or typos.
+.\" https://github.com/nose-devs/nose/blob/master/setup.py#L109
+
+.TH ddir 1 "25 May 2024" "3.1.2" "ddir man page"
+
+.SH NAME
+.PP
+ddir(1) \- calculate diffs between two directories and resolve them.
+
+.SH SYNOPSIS
+.PP
+\fBddir\fR command
+
+.SH DESCRIPTION
+.PP
+ddir(1) is a command line tool to calculate diffs between two directories and resolve them.
+
+.SH COMMANDS
+
+\fBhelp\fR
+    show help
+
+\fBversion\fR
+    show version
+
+\fBinit\fR
+    initialize a source directory
+
+\fBdiff create\fR \fIname\fR
+    create a diff for a target
+
+\fBdiff resolve\fR \fIname\fR \fB--modes\fR \fImodes\fR
+    resolve a diff for a target
+
+\fBdiff list\fR \fIname\fR
+    list all diffs for a target
+
+\fBtarget create\fR
+    create a target in interactive mode
+
+\fBtarget list\fR
+    list all targets
+
+\fBtarget delete\fR \fIname\fR
+    delete target
+
+\fBlegacy migrate\fR
+    migrate from legacy ddir
+
+.SH MODES
+.PP
+The modes work like this: for each type (the order is \fB+\fR, \fB-\fR, \fB>\fR, \fB<\fR, \fB?\fR) a number in the tuple indicates how to handle diffs of that type. There are the following modes:
+
+    \[bu] \fB0\fR: skip
+    \[bu] \fB1\fR: apply (type dependent, see below)
+    \[bu] \fB2\fR: choose manually
+
+.PP
+When choosing to apply diffs, the following will happen:
+
+    \[bu] \fB+\fR, \fB>\fR, \fB?\fR: override destination element with source element
+    \[bu] \fB<\fR: override source element with destination element
+    \[bu] \fB-\fR: delete destination element
+
+
+.SH SEE ALSO
+\fBcp(1)\fR, \fBrm(1)\fR
+
+.SH NOTES
+.PP
+ddir uses \fBshutil.copy2\fR to copy files and directories. This function tries to copy the metadata like timestamps as well. When copying data to an external storage device with a different file system, there is an issue with the accuracy of those timestamps:
+
+.PP
+To determine if a file is newer or older, ddir uses the \fBst_mtime\fR property, which is the UNIX timestamp as float. This float happens to be of a different accuracy depending on the storage device and file system. On all my internal devices (SSD and NVMe, APFS and ext4), the float has an accuracy of 6 decimal places, but on my external devices (SSD, exFAT) it only has an accuracy of 2 decimal places. This causes all comparisons to be not equal and thus a file is marked as modified though it is not. This is why I implemented a sneaky comparison, that cuts of the overlapping decimal places without rounding them.
+
+.SH BUGS
+.PP
+For sure! Please report them by opening an issue on GitHub: https://github.com/yannickkirschen/ddir.
+
+.SH AUTHOR
+.PP
+Yannick Kirschen (yannickkirschen@protonmail.com)
